@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios'
 import { PrefectureSelect } from './PrefectureSelect'
+import { Temporal } from '@js-temporal/polyfill'
 
 type WeatherTemperature = {
   min: string,
@@ -11,6 +12,7 @@ type WeatherTemperature = {
 type WeatherDetail = {
   imageTitle: string,
   image: string,
+  dateLabel: string,
   dayLabel: string,
   temperature: WeatherTemperature
 }
@@ -23,10 +25,10 @@ type WeatherInfo = {
 }
 
 function App() {
- 
+
   const [weatherInfo, setWeatherInfo] = useState<WeatherInfo>();
 
-  const changePrefecture = (e:React.ChangeEvent<HTMLSelectElement>): void => {
+  const changePrefecture = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     console.log(e.target.value);
     getWeatherInfo(e.target.value);
   }
@@ -34,13 +36,31 @@ function App() {
   const getWeatherInfo = (code: string): void => {
     axios.get("https://weather.tsukumijima.net/api/forecast/city/" + code)
       .then(res => {
+        let pageTitle = res.data.title;
+        console.log(pageTitle);
+        pageTitle = pageTitle.split(" ")[0];
+        pageTitle = pageTitle + " の天気";
+        document.title = pageTitle;
+
+        const dateArray = res.data.forecasts.map((item: { date: string }) =>
+          Temporal.PlainMonthDay.from(item.date).toString()
+        );
+
+        const jpDataArray = dateArray.map((date: string) => {
+          const [month, day] = date.split("-");
+          return `${month}月${day}日`;
+        });
+
         console.log(res.data);
 
+
+
         const infos: WeatherInfo = {
-          titlePage: res.data.title,
+          titlePage: pageTitle,
           today: {
             imageTitle: res.data.forecasts[0].image.title,
             image: res.data.forecasts[0].image.url,
+            dateLabel: jpDataArray[0],
             dayLabel: res.data.forecasts[0].dateLabel,
             temperature: {
               max: res.data.forecasts[0].temperature.max.celsius,
@@ -51,6 +71,7 @@ function App() {
           tomorrow: {
             imageTitle: res.data.forecasts[1].image.title,
             image: res.data.forecasts[1].image.url,
+            dateLabel: res.data.forecasts[1].date,
             dayLabel: res.data.forecasts[1].dateLabel,
             temperature: {
               max: res.data.forecasts[1].temperature.max.celsius,
@@ -61,6 +82,7 @@ function App() {
           threeDaysLater: {
             imageTitle: res.data.forecasts[2].image.title,
             image: res.data.forecasts[2].image.url,
+            dateLabel: res.data.forecasts[2].date,
             dayLabel: res.data.forecasts[2].dateLabel,
             temperature: {
               max: res.data.forecasts[2].temperature.max.celsius,
@@ -76,7 +98,7 @@ function App() {
 
   useEffect(() => {
     getWeatherInfo("260010");
-    
+
   }, []);
 
 
@@ -89,10 +111,10 @@ function App() {
       <section id="center">
         <h3>
           {weatherInfo?.titlePage}
-
         </h3>
         <div className="grid grid-flow-col grid-rows-3 gap-4">
           <div className="row-span-3 ...">
+            <h2>{weatherInfo?.today.dateLabel}</h2>
             <h2>{weatherInfo?.today.dayLabel}</h2>
             <img src={weatherInfo?.today.image} width={170} height={179} />
           </div>
@@ -125,13 +147,13 @@ function App() {
 
         </div>
 
-        
 
 
-        
+
+
       </section>
 
-      
+
       <section id="spacer"></section>
     </>
   )
