@@ -42,6 +42,7 @@ function App() {
         pageTitle = pageTitle + " の天気";
         document.title = pageTitle;
 
+        //What's the date today?
         const dateArray = res.data.forecasts.map((item: { date: string }) =>
           Temporal.PlainMonthDay.from(item.date).toString()
         );
@@ -52,8 +53,6 @@ function App() {
         });
 
         console.log(res.data);
-
-
 
         const infos: WeatherInfo = {
           titlePage: pageTitle,
@@ -66,12 +65,12 @@ function App() {
               max: res.data.forecasts[0].temperature.max.celsius,
               min: res.data.forecasts[0].temperature.min.celsius
             }
-
+            
           },
           tomorrow: {
             imageTitle: res.data.forecasts[1].image.title,
             image: res.data.forecasts[1].image.url,
-            dateLabel: res.data.forecasts[1].date,
+            dateLabel: jpDataArray[1],
             dayLabel: res.data.forecasts[1].dateLabel,
             temperature: {
               max: res.data.forecasts[1].temperature.max.celsius,
@@ -82,7 +81,7 @@ function App() {
           threeDaysLater: {
             imageTitle: res.data.forecasts[2].image.title,
             image: res.data.forecasts[2].image.url,
-            dateLabel: res.data.forecasts[2].date,
+            dateLabel: jpDataArray[2],
             dayLabel: res.data.forecasts[2].dateLabel,
             temperature: {
               max: res.data.forecasts[2].temperature.max.celsius,
@@ -90,9 +89,11 @@ function App() {
             }
           }
         };
+        
 
         setWeatherInfo(infos);
       })
+      
 
   };
 
@@ -112,11 +113,11 @@ function App() {
         <h3>
           {weatherInfo?.titlePage}
         </h3>
-        <div className="grid grid-flow-col grid-rows-3 gap-4">
+        <div className="grid grid-flow-col grid-rows-3 gap-6">
           <div className="row-span-3 ...">
-            <h2>{weatherInfo?.today.dateLabel}</h2>
-            <h2>{weatherInfo?.today.dayLabel}</h2>
-            <img src={weatherInfo?.today.image} width={170} height={179} />
+
+            <h2>{weatherInfo?.today.dayLabel} {weatherInfo?.today.dateLabel}</h2>
+            <img src={weatherInfo?.today.image} width={200} height={209} />
           </div>
           <div className="col-span-2 ...">{weatherInfo?.today.imageTitle}</div>
           <div className="flex gap-4 col-span-2 row-span-2 ...">
@@ -137,12 +138,40 @@ function App() {
           {weatherInfo?.tomorrow.image && (
             <div className="card">
               {weatherInfo?.tomorrow.dayLabel}
-              <img src={weatherInfo?.tomorrow.image} />
+              {weatherInfo?.tomorrow.dateLabel}
+              <img src={weatherInfo?.tomorrow.image} width={130} height={139} />
+              <div className='flex flex-row gap-4'>
+                <div className='flex flex-col gap-2'>
+                  <p style={{ color: 'red' }}>
+                    最高気温
+                  </p>
+                  <h2>{weatherInfo?.tomorrow.temperature.max}C°</h2>
+                </div>
+                <div className='flex flex-col gap-2'>
+                  <p className="text-blue-600/100 dark:text-sky-400/100">最低気温</p>
+                  <h2>{weatherInfo?.tomorrow.temperature.min}C°</h2>
+                </div>
+              </div>
+
             </div>)}
           {weatherInfo?.threeDaysLater.image && (
             <div className="card">
               {weatherInfo.threeDaysLater.dayLabel}
-              <img src={weatherInfo.threeDaysLater.image} />
+              {weatherInfo?.threeDaysLater.dateLabel}
+              <img src={weatherInfo.threeDaysLater.image} width={130} height={139} />
+              <div className='flex flex-row gap-4'>
+                <div className='flex flex-col gap-2'>
+                <p style={{ color: 'red' }}>
+                  最高気温
+                </p>
+                <h2>{weatherInfo?.threeDaysLater.temperature.max}C°</h2>
+              </div>
+              <div className='flex flex-col gap-2'>
+                <p className="text-blue-600/100 dark:text-sky-400/100">最低気温</p>
+                <h2>{weatherInfo?.threeDaysLater.temperature.min}C°</h2>
+              </div>
+              </div>
+              
             </div>)}
 
         </div>
