@@ -1,3 +1,9 @@
+# 天気予報アプリ
+API取得の練習、Next.js、React、Tailwind CSSの技術を学ぶために作成中
+
+Next.jsのチュートリアルを通して学んだことを実装
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
