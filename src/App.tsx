@@ -27,10 +27,32 @@ type WeatherInfo = {
 function App() {
 
   const [weatherInfo, setWeatherInfo] = useState<WeatherInfo>();
+  const [isChecked, setIsChecked] = useState(true);
 
   const changePrefecture = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     console.log(e.target.value);
     getWeatherInfo(e.target.value);
+  }
+  //天気の表示日数
+  const changeCheckboxTomorrow = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setIsChecked(e.target.checked);
+    console.log(e.target.checked);
+
+    document.cookie = "TomorrowButton=" + e.target.checked;
+  }
+
+  const parseCookie = (cookieValue: string): Record<string, string> => {
+    const cookie = cookieValue.split(";");
+    const obj: Record<string, string> = {};
+
+    cookie.map((item) => {
+      const elem = item.split("=");
+      const key = elem[0].trim();
+      const val = decodeURIComponent(elem[1]);
+      obj[key] = val;
+    });
+
+    return obj;
   }
 
   const getWeatherInfo = (code: string): void => {
@@ -65,7 +87,7 @@ function App() {
               max: res.data.forecasts[0].temperature.max.celsius,
               min: res.data.forecasts[0].temperature.min.celsius
             }
-            
+
           },
           tomorrow: {
             imageTitle: res.data.forecasts[1].image.title,
@@ -89,16 +111,32 @@ function App() {
             }
           }
         };
-        
+
+        const cookieValue = document.cookie;
+        const cookieObj = parseCookie(cookieValue);
+        console.log(cookieObj);
+
+        if (cookieObj.TomorrowButton === "false") {
+          setIsChecked(false);
+        } else {
+          setIsChecked(true);
+        }
+
 
         setWeatherInfo(infos);
       })
-      
+
 
   };
 
   useEffect(() => {
-    getWeatherInfo("260010");
+    const inputPrefectures = document.getElementById("pref-select");
+    if (inputPrefectures instanceof HTMLSelectElement) {
+      const selectedPrefecture = inputPrefectures.value;
+      console.log(selectedPrefecture);
+      getWeatherInfo(selectedPrefecture);
+    }
+
 
   }, []);
 
@@ -110,6 +148,10 @@ function App() {
 
 
       <section id="center">
+        <div className="flex flex-row gap-2">
+          <label><input type="checkbox" onChange={changeCheckboxTomorrow} checked={isChecked} />明日の天気</label>
+        </div>
+
         <h3>
           {weatherInfo?.titlePage}
         </h3>
@@ -134,26 +176,31 @@ function App() {
           </div>
         </div>
 
-        <div className="dayWeather gap-x-8">
-          {weatherInfo?.tomorrow.image && (
-            <div className="card">
-              {weatherInfo?.tomorrow.dayLabel}
-              {weatherInfo?.tomorrow.dateLabel}
-              <img src={weatherInfo?.tomorrow.image} width={130} height={139} />
-              <div className='flex flex-row gap-4'>
-                <div className='flex flex-col gap-2'>
-                  <p style={{ color: 'red' }}>
-                    最高気温
-                  </p>
-                  <h2>{weatherInfo?.tomorrow.temperature.max}C°</h2>
-                </div>
-                <div className='flex flex-col gap-2'>
-                  <p className="text-blue-600/100 dark:text-sky-400/100">最低気温</p>
-                  <h2>{weatherInfo?.tomorrow.temperature.min}C°</h2>
-                </div>
-              </div>
 
-            </div>)}
+        <div className="dayWeather gap-x-8">
+          {isChecked && (
+            <>
+              {weatherInfo?.tomorrow.image && (
+                <div className="card">
+                  {weatherInfo?.tomorrow.dayLabel}
+                  {weatherInfo?.tomorrow.dateLabel}
+                  <img src={weatherInfo?.tomorrow.image} width={130} height={139} />
+                  <div className='flex flex-row gap-4'>
+                    <div className='flex flex-col gap-2'>
+                      <p style={{ color: 'red' }}>
+                        最高気温
+                      </p>
+                      <h2>{weatherInfo?.tomorrow.temperature.max}C°</h2>
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                      <p className="text-blue-600/100 dark:text-sky-400/100">最低気温</p>
+                      <h2>{weatherInfo?.tomorrow.temperature.min}C°</h2>
+                    </div>
+                  </div>
+
+                </div>)}
+            </>
+          )}
           {weatherInfo?.threeDaysLater.image && (
             <div className="card">
               {weatherInfo.threeDaysLater.dayLabel}
@@ -161,17 +208,17 @@ function App() {
               <img src={weatherInfo.threeDaysLater.image} width={130} height={139} />
               <div className='flex flex-row gap-4'>
                 <div className='flex flex-col gap-2'>
-                <p style={{ color: 'red' }}>
-                  最高気温
-                </p>
-                <h2>{weatherInfo?.threeDaysLater.temperature.max}C°</h2>
+                  <p style={{ color: 'red' }}>
+                    最高気温
+                  </p>
+                  <h2>{weatherInfo?.threeDaysLater.temperature.max}C°</h2>
+                </div>
+                <div className='flex flex-col gap-2'>
+                  <p className="text-blue-600/100 dark:text-sky-400/100">最低気温</p>
+                  <h2>{weatherInfo?.threeDaysLater.temperature.min}C°</h2>
+                </div>
               </div>
-              <div className='flex flex-col gap-2'>
-                <p className="text-blue-600/100 dark:text-sky-400/100">最低気温</p>
-                <h2>{weatherInfo?.threeDaysLater.temperature.min}C°</h2>
-              </div>
-              </div>
-              
+
             </div>)}
 
         </div>
