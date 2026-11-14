@@ -1,8 +1,5 @@
 # 天気予報アプリ
-API取得の練習、Next.js、React、Tailwind CSSの技術を学ぶために作成中
-
-Next.jsのチュートリアルを通して学んだことを実装
-
+API取得の練習、React、Tailwind CSSの技術を使ってに作成中
 
 # React + TypeScript + Vite
 
